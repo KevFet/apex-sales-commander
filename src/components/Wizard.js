@@ -10,19 +10,14 @@ export default function Wizard({
     language,
     stepError
 }) {
-    // Local state to store individual answers for questions
     const [questionAnswers, setQuestionAnswers] = useState({});
     const [generalNote, setGeneralNote] = useState('');
     const [showObjections, setShowObjections] = useState(false);
+    const [isSending, setIsSending] = useState(false);
 
-    // When step changes, reset local state (or load if we had better persistence, but simple reset is safer for now effectively)
-    // Actually, 'notes' prop contains the *committed* string from previous steps.
-    // Ideally we would parse it back, but given the request, the user wants "space to write".
-    // If they go back, they see the summary in 'generalNote' because that's how we saved it.
     useEffect(() => {
         setQuestionAnswers({});
         setGeneralNote('');
-        // If there is existing data for this step (from going Back), load it into generalNote for reference
         if (notes[currentStep]) {
             setGeneralNote(notes[currentStep]);
         }
@@ -36,10 +31,8 @@ export default function Wizard({
     };
 
     const onNextClick = () => {
-        // Construct the formatted note string
         let formattedNote = "";
 
-        // Add Q&A
         const phase = salesContent.phases[currentStep];
         if (phase && phase.questions) {
             phase.questions.forEach((q, idx) => {
@@ -49,12 +42,10 @@ export default function Wizard({
             });
         }
 
-        // Add General Note if exists (or if it was loaded from history)
         if (generalNote) {
             formattedNote += `[NOTES / OBSERVATIONS]:\n${generalNote}`;
         }
 
-        // Pass up
         handleNext(formattedNote);
     };
 
@@ -68,6 +59,30 @@ export default function Wizard({
         navigator.clipboard.writeText(text).then(() => {
             alert("FULL SALES LOG COPIED TO CLIPBOARD");
         });
+    };
+
+    const sendEmail = async () => {
+        setIsSending(true);
+        try {
+            const response = await fetch('/api/send-email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ notes }),
+            });
+
+            if (response.ok) {
+                alert("REPORT SENT TO CONTACT@KEVINFETIVEAU.COM");
+            } else {
+                alert("ERROR SENDING EMAIL. PLEASE COPY MANUALLY.");
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert("ERROR SENDING EMAIL");
+        } finally {
+            setIsSending(false);
+        }
     };
 
     if (isComplete) {
@@ -86,9 +101,23 @@ export default function Wizard({
                         );
                     })}
                 </div>
-                <button onClick={copyToClipboard} className="button-primary" style={{ width: '100%' }}>
-                    EXPORT TO CRM (COPY)
-                </button>
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                    <button
+                        onClick={copyToClipboard}
+                        className="button-secondary"
+                        style={{ flex: 1 }}
+                    >
+                        COPY TO CLIPBOARD
+                    </button>
+                    <button
+                        onClick={sendEmail}
+                        className="button-primary"
+                        style={{ flex: 1 }}
+                        disabled={isSending}
+                    >
+                        {isSending ? "SENDING..." : "SEND TO EMAIL"}
+                    </button>
+                </div>
             </div>
         );
     }
@@ -97,7 +126,7 @@ export default function Wizard({
 
     return (
         <div className="wizard-container" style={{ display: 'flex', flexDirection: 'column', gap: '2rem', position: 'relative' }}>
-
+            {/* ... (Previous code for Objection Overlay, Progress, Header, Script) ... */}
             {/* Objections Overlay */}
             {showObjections && (
                 <div style={{
