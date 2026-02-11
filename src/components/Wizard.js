@@ -75,7 +75,7 @@ export default function Wizard({
             const result = await response.json();
 
             if (response.ok) {
-                alert("REPORT SENT TO CONTACT@KEVINFETIVEAU.COM");
+                alert("REPORT SENT TO FETIVEAUKEVIN@GMAIL.COM");
             } else {
                 console.error("Email Error:", result);
                 alert(`ERROR SENDING EMAIL: ${result.error?.message || result.error || "Unknown Error"}`);

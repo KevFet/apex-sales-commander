@@ -20,7 +20,7 @@ export async function POST(request) {
 
     const response = await resend.emails.send({
       from: 'Apex COMMANDER <onboarding@resend.dev>',
-      to: ['contact@kevinfetiveau.com'],
+      to: ['fetiveaukevin@gmail.com'],
       subject: `New Sales Mission Report - ${new Date().toLocaleDateString()}`,
       html: emailContent,
     });
