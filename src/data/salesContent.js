@@ -19,6 +19,11 @@ export const salesContent = {
                     es: "¿Por qué aceptó esta llamada hoy?"
                 },
                 {
+                    en: "What motivated you to look into this right now?",
+                    fr: "Qu'est-ce qui vous a motivé à regarder ça maintenant ?",
+                    es: "¿Qué le motivó a ver esto ahora?"
+                },
+                {
                     en: "How long do we have for this call?",
                     fr: "Combien de temps avons-nous ?",
                     es: "¿Cuánto tiempo tenemos?"
@@ -44,19 +49,19 @@ export const salesContent = {
                     es: "¿Cuánto tiempo ha sido esto un problema?"
                 },
                 {
-                    en: "What have you tried to fix it?",
-                    fr: "Qu'avez-vous essayé pour résoudre ça ?",
-                    es: "¿Qué ha intentado para solucionarlo?"
+                    en: "What have you tried to fix it so far?",
+                    fr: "Qu'avez-vous essayé pour résoudre ça jusqu'ici ?",
+                    es: "¿Qué ha intentado para solucionarlo hasta ahora?"
                 },
                 {
-                    en: "How is this impacting you personally?",
-                    fr: "Comment cela vous impacte-t-il personnellement ?",
-                    es: "¿Cómo le afecta esto personalmente?"
+                    en: "Why didn't that work?",
+                    fr: "Pourquoi cela n'a pas marché ?",
+                    es: "¿Por qué no funcionó?"
                 },
                 {
-                    en: "Who else is affected by this?",
-                    fr: "Qui d'autre est affecté par cela ?",
-                    es: "¿Quién más se ve afectado por esto?"
+                    en: "How is this impacting you personally/professionally?",
+                    fr: "Comment cela vous impacte-t-il personnellement/professionnellement ?",
+                    es: "¿Cómo le afecta esto personal o profesionalmente?"
                 },
                 {
                     en: "If nothing changes, where will you be in 6 months?",
@@ -73,15 +78,20 @@ export const salesContent = {
                 es: "Fase 3: La Brecha Financiera (ROI)"
             },
             script: {
-                en: "Based on these numbers, doing nothing is actually more expensive than solving the problem. Do you agree?",
-                fr: "D'après ces chiffres, ne rien faire coûte plus cher que de résoudre le problème. Êtes-vous d'accord ?",
-                es: "Basado en estos números, no hacer nada le cuesta más que solucionar el problema. ¿Está de acuerdo?"
+                en: "Based on these numbers, doing nothing is actually more expensive than solving the problem.",
+                fr: "D'après ces chiffres, ne rien faire coûte plus cher que de résoudre le problème.",
+                es: "Basado en estos números, no hacer nada le cuesta más que solucionar el problema."
             },
             questions: [
                 {
-                    en: "What is the financial impact of this problem?",
-                    fr: "Quel est l'impact financier de ce problème ?",
-                    es: "¿Cuál es el impacto financiero de este problema?"
+                    en: "What is the financial impact of this problem (Monthly)?",
+                    fr: "Quel est l'impact financier mensuel ?",
+                    es: "¿Cuál es el impacto financiero mensual?"
+                },
+                {
+                    en: "What would happen if you fixed this?",
+                    fr: "Que se passerait-il si vous régliez ça ?",
+                    es: "¿Qué pasaría si solucionara esto?"
                 },
                 {
                     en: "Can you afford to wait another month?",
@@ -102,7 +112,23 @@ export const salesContent = {
                 fr: "Vu vos enjeux, voici la solution stratégique...",
                 es: "Basado en sus retos, este es el plan de acción..."
             },
-            questions: []
+            questions: [
+                {
+                    en: "Does this solution address the pain we discussed?",
+                    fr: "Est-ce que cette solution répond au problème discuté ?",
+                    es: "¿Esta solución aborda el dolor que discutimos?"
+                },
+                {
+                    en: "Do you see how this bridges the gap?",
+                    fr: "Voyez-vous comment cela comble l'écart ?",
+                    es: "¿Ve cómo esto cierra la brecha?"
+                },
+                {
+                    en: "Is there anything missing from this plan?",
+                    fr: "Manque-t-il quelque chose à ce plan ?",
+                    es: "¿Falta algo en este plan?"
+                }
+            ]
         },
         {
             id: 5,
@@ -116,7 +142,23 @@ export const salesContent = {
                 fr: "Êtes-vous prêt à vous engager aujourd'hui ?",
                 es: "¿Está listo para comprometerse hoy?"
             },
-            questions: []
+            questions: [
+                {
+                    en: "On a scale of 1-10, how confident are you?",
+                    fr: "Sur une échelle de 1 à 10, quel est votre niveau de confiance ?",
+                    es: "¿En una escala del 1 al 10, qué tan seguro está?"
+                },
+                {
+                    en: "What would make it a 10?",
+                    fr: "Que faudrait-il pour arriver à 10 ?",
+                    es: "¿Qué haría falta para llegar a 10?"
+                },
+                {
+                    en: "Who do we need to bring in to authorize this?",
+                    fr: "Qui doit valider cette décision ?",
+                    es: "¿Quién debe autorizar esto?"
+                }
+            ]
         }
     ],
     objections: [

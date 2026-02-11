@@ -10,20 +10,52 @@ export default function Wizard({
     language,
     stepError
 }) {
-    const [currentNote, setCurrentNote] = useState('');
+    // Local state to store individual answers for questions
+    const [questionAnswers, setQuestionAnswers] = useState({});
+    const [generalNote, setGeneralNote] = useState('');
     const [showObjections, setShowObjections] = useState(false);
 
-    // Sync local note input with global notes when step changes
+    // When step changes, reset local state (or load if we had better persistence, but simple reset is safer for now effectively)
+    // Actually, 'notes' prop contains the *committed* string from previous steps.
+    // Ideally we would parse it back, but given the request, the user wants "space to write".
+    // If they go back, they see the summary in 'generalNote' because that's how we saved it.
     useEffect(() => {
+        setQuestionAnswers({});
+        setGeneralNote('');
+        // If there is existing data for this step (from going Back), load it into generalNote for reference
         if (notes[currentStep]) {
-            setCurrentNote(notes[currentStep]);
-        } else {
-            setCurrentNote('');
+            setGeneralNote(notes[currentStep]);
         }
     }, [currentStep, notes]);
 
+    const handleAnswerChange = (index, value) => {
+        setQuestionAnswers(prev => ({
+            ...prev,
+            [index]: value
+        }));
+    };
+
     const onNextClick = () => {
-        handleNext(currentNote);
+        // Construct the formatted note string
+        let formattedNote = "";
+
+        // Add Q&A
+        const phase = salesContent.phases[currentStep];
+        if (phase && phase.questions) {
+            phase.questions.forEach((q, idx) => {
+                const answer = questionAnswers[idx] || "-(No Answer)-";
+                formattedNote += `Q: ${q[language]}\n`;
+                formattedNote += `A: ${answer}\n\n`;
+            });
+        }
+
+        // Add General Note if exists (or if it was loaded from history)
+        if (generalNote) {
+            formattedNote += `[NOTES / OBSERVATIONS]:\n${generalNote}`;
+        }
+
+        // Pass up
+        handleNext(formattedNote);
     };
 
     const isComplete = currentStep >= salesContent.phases.length;
@@ -31,10 +63,10 @@ export default function Wizard({
     const copyToClipboard = () => {
         const text = Object.entries(notes).map(([step, note]) => {
             const p = salesContent.phases[step];
-            return `${p.title[language]}:\n${note}\n`;
+            return `=== ${p.title[language]} ===\n${note}\n-----------------------------------\n`;
         }).join('\n');
         navigator.clipboard.writeText(text).then(() => {
-            alert("NOTES COPIED TO CLIPBOARD - PASTE INTO CRM");
+            alert("FULL SALES LOG COPIED TO CLIPBOARD");
         });
     };
 
@@ -49,7 +81,7 @@ export default function Wizard({
                         return (
                             <div key={step} style={{ marginBottom: '1.5rem', borderBottom: '1px solid #333', paddingBottom: '1rem' }}>
                                 <h4 style={{ color: '#888', textTransform: 'uppercase', fontSize: '0.8rem' }}>{p.title[language]}</h4>
-                                <p style={{ marginTop: '0.5rem', whiteSpace: 'pre-wrap' }}>{note}</p>
+                                <p style={{ marginTop: '0.5rem', whiteSpace: 'pre-wrap', fontFamily: 'monospace', fontSize: '0.9rem', color: '#CCC' }}>{note}</p>
                             </div>
                         );
                     })}
@@ -66,7 +98,7 @@ export default function Wizard({
     return (
         <div className="wizard-container" style={{ display: 'flex', flexDirection: 'column', gap: '2rem', position: 'relative' }}>
 
-            {/* Objections Cheat Sheet Overlay */}
+            {/* Objections Overlay */}
             {showObjections && (
                 <div style={{
                     position: 'fixed',
@@ -106,7 +138,7 @@ export default function Wizard({
                 }} />
             </div>
 
-            {/* Header + Objection Toggle */}
+            {/* Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div style={{ borderLeft: '4px solid #00FF7F', paddingLeft: '1.5rem' }}>
                     <h4 style={{ color: '#888', textTransform: 'uppercase', fontSize: '0.9rem', letterSpacing: '1px' }}>
@@ -142,37 +174,46 @@ export default function Wizard({
                 </p>
             </div>
 
-            {/* Discovery Questions (Only if available) */}
-            {phase.questions && phase.questions.length > 0 && (
-                <div style={{ marginTop: '-1rem' }}>
-                    <h4 style={{ color: '#888', textTransform: 'uppercase', fontSize: '0.8rem', marginBottom: '1rem' }}>Discovery Questions:</h4>
-                    <ul style={{ listStyle: 'none', padding: 0, display: 'grid', gap: '0.5rem' }}>
-                        {phase.questions.map((q, idx) => (
-                            <li key={idx} style={{
-                                background: '#151515',
-                                padding: '0.8rem',
-                                borderLeft: '2px solid #444',
-                                color: '#EEE',
-                                fontSize: '0.95rem'
-                            }}>
-                                {q[language]}
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            )}
+            {/* Dynamic Discovery Questions Form */}
+            <div className="questions-form" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                <h3 style={{ color: '#00FF7F', textTransform: 'uppercase', fontSize: '1rem', borderBottom: '1px solid #333', paddingBottom: '0.5rem' }}>
+                    Step-by-Step Discovery
+                </h3>
 
-            {/* Input */}
+                {phase.questions && phase.questions.map((q, idx) => (
+                    <div key={idx} style={{ background: '#111', padding: '1rem', border: '1px solid #333', borderRadius: '4px' }}>
+                        <label style={{ display: 'block', marginBottom: '0.8rem', color: '#EEE', fontSize: '0.95rem', fontWeight: '500' }}>
+                            {idx + 1}. {q[language]}
+                        </label>
+                        <input
+                            type="text"
+                            value={questionAnswers[idx] || ''}
+                            onChange={(e) => handleAnswerChange(idx, e.target.value)}
+                            placeholder="Candidate Answer..."
+                            style={{
+                                width: '100%',
+                                background: '#1A1A1A',
+                                border: '1px solid #444',
+                                color: 'white',
+                                padding: '0.8rem',
+                                fontSize: '1rem'
+                            }}
+                        />
+                    </div>
+                ))}
+            </div>
+
+            {/* General Notes Input */}
             <div>
                 <label style={{ display: 'block', marginBottom: '0.8rem', color: '#888', textTransform: 'uppercase', fontSize: '0.8rem' }}>
-                    Client Response / Notes
+                    Additional Notes / Observations
                 </label>
                 <textarea
                     className="input-field"
-                    value={currentNote}
-                    onChange={(e) => setCurrentNote(e.target.value)}
-                    placeholder="Capture detailed response here..."
-                    rows={6}
+                    value={generalNote}
+                    onChange={(e) => setGeneralNote(e.target.value)}
+                    placeholder="Anything else relevant..."
+                    rows={3}
                     style={{ width: '100%', background: '#111', color: '#fff', border: '1px solid #333', padding: '1rem' }}
                 />
                 {stepError && <p style={{ color: '#FF0033', marginTop: '0.5rem', fontWeight: 'bold' }}>⚠️ {stepError}</p>}
