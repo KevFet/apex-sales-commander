@@ -3,10 +3,10 @@ import { Resend } from 'resend';
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request) {
-    try {
-        const { notes } = await request.json();
+  try {
+    const { notes } = await request.json();
 
-        const emailContent = `
+    const emailContent = `
       <h1>Apex Sales Commander Log</h1>
       <p><strong>Date:</strong> ${new Date().toLocaleString()}</p>
       <hr />
@@ -18,15 +18,22 @@ export async function POST(request) {
       `).join('')}
     `;
 
-        const data = await resend.emails.send({
-            from: 'Apex COMMANDER <onboarding@resend.dev>',
-            to: ['contact@kevinfetiveau.com'],
-            subject: `New Sales Mission Report - ${new Date().toLocaleDateString()}`,
-            html: emailContent,
-        });
+    const response = await resend.emails.send({
+      from: 'Apex COMMANDER <onboarding@resend.dev>',
+      to: ['contact@kevinfetiveau.com'],
+      subject: `New Sales Mission Report - ${new Date().toLocaleDateString()}`,
+      html: emailContent,
+    });
 
-        return Response.json(data);
-    } catch (error) {
-        return Response.json({ error }, { status: 500 });
+    console.log("Resend API Full Response:", response);
+
+    if (response.error) {
+      return Response.json({ error: response.error }, { status: 400 });
     }
+
+    return Response.json(response.data);
+  } catch (error) {
+    console.error("Server Error:", error);
+    return Response.json({ error: error.message }, { status: 500 });
+  }
 }

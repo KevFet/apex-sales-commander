@@ -72,14 +72,17 @@ export default function Wizard({
                 body: JSON.stringify({ notes }),
             });
 
+            const result = await response.json();
+
             if (response.ok) {
                 alert("REPORT SENT TO CONTACT@KEVINFETIVEAU.COM");
             } else {
-                alert("ERROR SENDING EMAIL. PLEASE COPY MANUALLY.");
+                console.error("Email Error:", result);
+                alert(`ERROR SENDING EMAIL: ${result.error?.message || result.error || "Unknown Error"}`);
             }
         } catch (error) {
             console.error('Error:', error);
-            alert("ERROR SENDING EMAIL");
+            alert("NETWORK ERROR SENDING EMAIL");
         } finally {
             setIsSending(false);
         }
