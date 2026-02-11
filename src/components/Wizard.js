@@ -11,6 +11,7 @@ export default function Wizard({
     stepError
 }) {
     const [currentNote, setCurrentNote] = useState('');
+    const [showObjections, setShowObjections] = useState(false);
 
     // Sync local note input with global notes when step changes
     useEffect(() => {
@@ -22,7 +23,6 @@ export default function Wizard({
     }, [currentStep, notes]);
 
     const onNextClick = () => {
-        // Pass the current note up to the parent handler logic
         handleNext(currentNote);
     };
 
@@ -45,7 +45,6 @@ export default function Wizard({
                 <div style={{ margin: '2rem 0' }}>
                     {Object.entries(notes).map(([step, note]) => {
                         const p = salesContent.phases[step];
-                        // Ensure phase exists before accessing
                         if (!p) return null;
                         return (
                             <div key={step} style={{ marginBottom: '1.5rem', borderBottom: '1px solid #333', paddingBottom: '1rem' }}>
@@ -55,11 +54,7 @@ export default function Wizard({
                         );
                     })}
                 </div>
-                <button
-                    onClick={copyToClipboard}
-                    className="button-primary"
-                    style={{ width: '100%' }}
-                >
+                <button onClick={copyToClipboard} className="button-primary" style={{ width: '100%' }}>
                     EXPORT TO CRM (COPY)
                 </button>
             </div>
@@ -69,7 +64,37 @@ export default function Wizard({
     const phase = salesContent.phases[currentStep];
 
     return (
-        <div className="wizard-container" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+        <div className="wizard-container" style={{ display: 'flex', flexDirection: 'column', gap: '2rem', position: 'relative' }}>
+
+            {/* Objections Cheat Sheet Overlay */}
+            {showObjections && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    right: 0,
+                    width: '400px',
+                    height: '100vh',
+                    background: 'rgba(10, 10, 10, 0.95)',
+                    borderLeft: '2px solid #FF0033',
+                    padding: '2rem',
+                    overflowY: 'auto',
+                    zIndex: 1000,
+                    boxShadow: '-10px 0 30px rgba(0,0,0,0.8)'
+                }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                        <h3 style={{ color: '#FF0033', textTransform: 'uppercase', margin: 0 }}>⚠️ Objection Detected</h3>
+                        <button onClick={() => setShowObjections(false)} style={{ background: 'none', border: 'none', color: '#FFF', fontSize: '1.5rem', cursor: 'pointer' }}>✕</button>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                        {salesContent.objections.map((obj) => (
+                            <div key={obj.id} style={{ border: '1px solid #333', padding: '1rem', borderRadius: '4px' }}>
+                                <h4 style={{ color: '#FFF', marginBottom: '0.5rem', fontSize: '0.9rem' }}>{obj.label[language]}</h4>
+                                <p style={{ color: '#CCC', fontStyle: 'italic', fontSize: '0.95rem' }}>"{obj.rebuttal[language]}"</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             {/* Progress */}
             <div style={{ background: '#333', height: '4px', width: '100%', borderRadius: '2px' }}>
@@ -81,14 +106,32 @@ export default function Wizard({
                 }} />
             </div>
 
-            {/* Header */}
-            <div style={{ borderLeft: '4px solid #00FF7F', paddingLeft: '1.5rem' }}>
-                <h4 style={{ color: '#888', textTransform: 'uppercase', fontSize: '0.9rem', letterSpacing: '1px' }}>
-                    Phase {currentStep + 1} / {salesContent.phases.length}
-                </h4>
-                <h1 style={{ fontSize: '2.5rem', fontWeight: '800', marginTop: '0.5rem', textTransform: 'uppercase' }}>
-                    {phase.title[language]}
-                </h1>
+            {/* Header + Objection Toggle */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div style={{ borderLeft: '4px solid #00FF7F', paddingLeft: '1.5rem' }}>
+                    <h4 style={{ color: '#888', textTransform: 'uppercase', fontSize: '0.9rem', letterSpacing: '1px' }}>
+                        Phase {currentStep + 1} / {salesContent.phases.length}
+                    </h4>
+                    <h1 style={{ fontSize: '2.5rem', fontWeight: '800', marginTop: '0.5rem', textTransform: 'uppercase' }}>
+                        {phase.title[language]}
+                    </h1>
+                </div>
+                <button
+                    onClick={() => setShowObjections(!showObjections)}
+                    style={{
+                        background: 'transparent',
+                        border: '1px solid #FF0033',
+                        color: '#FF0033',
+                        padding: '8px 16px',
+                        textTransform: 'uppercase',
+                        fontSize: '0.8rem',
+                        cursor: 'pointer',
+                        fontWeight: 'bold',
+                        letterSpacing: '1px'
+                    }}
+                >
+                    ⚠️ Anti-Sèche
+                </button>
             </div>
 
             {/* Script Box */}
@@ -98,6 +141,26 @@ export default function Wizard({
                     "{phase.script[language]}"
                 </p>
             </div>
+
+            {/* Discovery Questions (Only if available) */}
+            {phase.questions && phase.questions.length > 0 && (
+                <div style={{ marginTop: '-1rem' }}>
+                    <h4 style={{ color: '#888', textTransform: 'uppercase', fontSize: '0.8rem', marginBottom: '1rem' }}>Discovery Questions:</h4>
+                    <ul style={{ listStyle: 'none', padding: 0, display: 'grid', gap: '0.5rem' }}>
+                        {phase.questions.map((q, idx) => (
+                            <li key={idx} style={{
+                                background: '#151515',
+                                padding: '0.8rem',
+                                borderLeft: '2px solid #444',
+                                color: '#EEE',
+                                fontSize: '0.95rem'
+                            }}>
+                                {q[language]}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
 
             {/* Input */}
             <div>
