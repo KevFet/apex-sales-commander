@@ -12,7 +12,9 @@ export default function Home() {
     error,
     handleNext,
     handlePrevious,
-    handleLanguageChange
+    handleLanguageChange,
+    prospectInfo,
+    setProspectInfo
   } = useSalesState();
 
   return (
@@ -59,6 +61,8 @@ export default function Home() {
           handlePrevious={handlePrevious}
           language={language}
           stepError={error}
+          prospectInfo={prospectInfo}
+          setProspectInfo={setProspectInfo}
         />
       </div>
 

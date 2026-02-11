@@ -8,12 +8,15 @@ export default function Wizard({
     handleNext,
     handlePrevious,
     language,
-    stepError
+    stepError,
+    prospectInfo,
+    setProspectInfo
 }) {
     const [questionAnswers, setQuestionAnswers] = useState({});
     const [generalNote, setGeneralNote] = useState('');
     const [showObjections, setShowObjections] = useState(false);
     const [isSending, setIsSending] = useState(false);
+    const [missionStarted, setMissionStarted] = useState(false);
 
     useEffect(() => {
         setQuestionAnswers({});
@@ -28,6 +31,21 @@ export default function Wizard({
             ...prev,
             [index]: value
         }));
+    };
+
+    const handleProspectChange = (field, value) => {
+        setProspectInfo(prev => ({
+            ...prev,
+            [field]: value
+        }));
+    };
+
+    const startMission = () => {
+        if (!prospectInfo.name || !prospectInfo.company) {
+            alert("TARGET IDENTIFICATION REQUIRED: ENTER NAME AND COMPANY.");
+            return;
+        }
+        setMissionStarted(true);
     };
 
     const onNextClick = () => {
@@ -52,7 +70,13 @@ export default function Wizard({
     const isComplete = currentStep >= salesContent.phases.length;
 
     const copyToClipboard = () => {
-        const text = Object.entries(notes).map(([step, note]) => {
+        let text = `MISSION REPORT: ${prospectInfo.company.toUpperCase()} - ${prospectInfo.name.toUpperCase()}\n`;
+        text += `DATE: ${new Date().toLocaleDateString()}\n`;
+        text += `CONTACT: ${prospectInfo.email} | ${prospectInfo.phone}\n`;
+        text += `WEBSITE: ${prospectInfo.website}\n`;
+        text += `=================================================\n\n`;
+
+        text += Object.entries(notes).map(([step, note]) => {
             const p = salesContent.phases[step];
             return `=== ${p.title[language]} ===\n${note}\n-----------------------------------\n`;
         }).join('\n');
@@ -69,7 +93,7 @@ export default function Wizard({
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ notes }),
+                body: JSON.stringify({ notes, prospectInfo }),
             });
 
             const result = await response.json();
@@ -88,10 +112,88 @@ export default function Wizard({
         }
     };
 
+    if (!missionStarted) {
+        return (
+            <div className="prospect-form-container" style={{ border: '2px solid #00FF7F', padding: '2rem', background: 'rgba(10,10,10,0.8)' }}>
+                <h2 style={{ color: '#00FF7F', textTransform: 'uppercase', marginBottom: '1.5rem', textAlign: 'center' }}>
+                    Target Acquisition (Intel)
+                </h2>
+                <div style={{ display: 'grid', gap: '1rem' }}>
+                    <div>
+                        <label style={{ display: 'block', color: '#888', marginBottom: '0.5rem', fontSize: '0.8rem' }}>PROSPECT NAME *</label>
+                        <input
+                            type="text"
+                            value={prospectInfo.name}
+                            onChange={(e) => handleProspectChange('name', e.target.value)}
+                            style={{ width: '100%', padding: '0.8rem', background: '#111', border: '1px solid #333', color: 'white' }}
+                            placeholder="John Doe"
+                        />
+                    </div>
+                    <div>
+                        <label style={{ display: 'block', color: '#888', marginBottom: '0.5rem', fontSize: '0.8rem' }}>COMPANY NAME *</label>
+                        <input
+                            type="text"
+                            value={prospectInfo.company}
+                            onChange={(e) => handleProspectChange('company', e.target.value)}
+                            style={{ width: '100%', padding: '0.8rem', background: '#111', border: '1px solid #333', color: 'white' }}
+                            placeholder="Acme Corp"
+                        />
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                        <div>
+                            <label style={{ display: 'block', color: '#888', marginBottom: '0.5rem', fontSize: '0.8rem' }}>EMAIL</label>
+                            <input
+                                type="email"
+                                value={prospectInfo.email}
+                                onChange={(e) => handleProspectChange('email', e.target.value)}
+                                style={{ width: '100%', padding: '0.8rem', background: '#111', border: '1px solid #333', color: 'white' }}
+                                placeholder="john@example.com"
+                            />
+                        </div>
+                        <div>
+                            <label style={{ display: 'block', color: '#888', marginBottom: '0.5rem', fontSize: '0.8rem' }}>PHONE</label>
+                            <input
+                                type="tel"
+                                value={prospectInfo.phone}
+                                onChange={(e) => handleProspectChange('phone', e.target.value)}
+                                style={{ width: '100%', padding: '0.8rem', background: '#111', border: '1px solid #333', color: 'white' }}
+                                placeholder="+1 555..."
+                            />
+                        </div>
+                    </div>
+                    <div>
+                        <label style={{ display: 'block', color: '#888', marginBottom: '0.5rem', fontSize: '0.8rem' }}>WEBSITE URL</label>
+                        <input
+                            type="url"
+                            value={prospectInfo.website}
+                            onChange={(e) => handleProspectChange('website', e.target.value)}
+                            style={{ width: '100%', padding: '0.8rem', background: '#111', border: '1px solid #333', color: 'white' }}
+                            placeholder="https://..."
+                        />
+                    </div>
+
+                    <button
+                        onClick={startMission}
+                        className="button-primary"
+                        style={{ marginTop: '1rem', padding: '1rem', fontSize: '1.2rem' }}
+                    >
+                        INITIATE MISSION &rarr;
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     if (isComplete) {
         return (
             <div className="summary-section" style={{ padding: '2rem', border: '1px solid #333', marginTop: '2rem' }}>
                 <h2 style={{ color: '#00FF7F', textTransform: 'uppercase' }}>Mission Complete</h2>
+
+                <div style={{ background: '#111', padding: '1rem', marginBottom: '2rem', borderLeft: '4px solid #00FF7F' }}>
+                    <h3 style={{ color: 'white', margin: 0 }}>{prospectInfo.company} - {prospectInfo.name}</h3>
+                    <p style={{ color: '#888', margin: '0.5rem 0 0 0' }}>{prospectInfo.email} | {prospectInfo.phone}</p>
+                </div>
+
                 <div style={{ margin: '2rem 0' }}>
                     {Object.entries(notes).map(([step, note]) => {
                         const p = salesContent.phases[step];
@@ -129,7 +231,13 @@ export default function Wizard({
 
     return (
         <div className="wizard-container" style={{ display: 'flex', flexDirection: 'column', gap: '2rem', position: 'relative' }}>
-            {/* ... (Previous code for Objection Overlay, Progress, Header, Script) ... */}
+
+            {/* Context Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#666', borderBottom: '1px solid #222', paddingBottom: '0.5rem' }}>
+                <span>TARGET: {prospectInfo.company.toUpperCase()}</span>
+                <span>CONTACT: {prospectInfo.name.toUpperCase()}</span>
+            </div>
+
             {/* Objections Overlay */}
             {showObjections && (
                 <div style={{

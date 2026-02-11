@@ -5,6 +5,13 @@ export const useSalesState = (initialLanguage = 'en') => {
     const [notes, setNotes] = useState({});
     const [language, setLanguage] = useState(initialLanguage);
     const [error, setError] = useState('');
+    const [prospectInfo, setProspectInfo] = useState({
+        name: '',
+        company: '',
+        email: '',
+        phone: '',
+        website: ''
+    });
 
     const handleNext = (currentNote) => {
         if (!currentNote || currentNote.length < 10) {
@@ -43,6 +50,9 @@ export const useSalesState = (initialLanguage = 'en') => {
         notes,
         language,
         error,
+        prospectInfo,
+        setProspectInfo,
+        setCurrentStep,
         handleNext,
         handlePrevious,
         handleLanguageChange,
