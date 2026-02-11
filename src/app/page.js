@@ -1,66 +1,72 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client';
+
+import { useSalesState } from '../hooks/useSalesState';
+import Wizard from '../components/Wizard';
+import LanguageToggle from '../components/LanguageToggle';
 
 export default function Home() {
+  const {
+    currentStep,
+    notes,
+    language,
+    error,
+    handleNext,
+    handlePrevious,
+    handleLanguageChange
+  } = useSalesState();
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <main style={{
+      minHeight: '100vh',
+      padding: '2rem',
+      background: '#0A0A0A',
+      color: '#FFF',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center'
+    }}>
+
+      {/* Header / HUD Top Bar */}
+      <header style={{
+        width: '100%',
+        maxWidth: '800px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '3rem',
+        borderBottom: '1px solid #333',
+        paddingBottom: '1rem'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div style={{ width: '12px', height: '12px', background: '#00FF7F', borderRadius: '50%', boxShadow: '0 0 10px #00FF7F' }}></div>
+          <h2 style={{ fontSize: '1.2rem', textTransform: 'uppercase', letterSpacing: '2px', margin: 0 }}>
+            APEX SALES COMMANDER
+          </h2>
+        </div>
+
+        <LanguageToggle
+          currentLanguage={language}
+          onChange={handleLanguageChange}
         />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.js file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      </header>
+
+      {/* Main Interface */}
+      <div style={{ width: '100%', maxWidth: '800px' }}>
+        <Wizard
+          currentStep={currentStep}
+          notes={notes}
+          handleNext={handleNext}
+          handlePrevious={handlePrevious}
+          language={language}
+          stepError={error}
+        />
+      </div>
+
+      {/* Footer / Copyright */}
+      <footer style={{ marginTop: '4rem', color: '#444', fontSize: '0.8rem', textTransform: 'uppercase' }}>
+        System Status: Online // Mode: Beast
+      </footer>
+
+    </main>
   );
 }
